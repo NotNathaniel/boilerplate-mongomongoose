@@ -1,13 +1,57 @@
 require('dotenv').config();
+const mongoose = require('mongoose'); // Import mongoose
 
+const MONGO_URI = process.env.MONGO_URI;
+mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 let Person;
 
+const personSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+  age:{
+    type: Number,
+  },
+  favoriteFoods: {
+    type: [String]
+  }
+
+});
+
+Person = mongoose.model('Person', personSchema);
+
 const createAndSavePerson = (done) => {
-  done(null /*, data*/);
+  const person_object = {
+    name: "John Doe", // Correctly matches the schema
+    age: 30, // Matches the schema type
+    favoriteFoods: ["Spicy Tuna Roll", "Taco"], // Matches the schema type
+  };
+
+  const person = new Person(person_object); // Create a new Person instance
+
+  // Save the person document using a callback
+  person.save(function(err, data) {
+    if (err) {
+      console.error(err); // Handle the error
+      return done(err); // Pass the error to the callback
+    }
+    console.log(data); // Log the saved data
+    done(null, data); // Pass the saved data to the callback
+  });
 };
 
+
 const createManyPeople = (arrayOfPeople, done) => {
+  Person.create(arrayOfPeople, function(err, data) {
+    if (err) {
+      console.error(err); // Handle the error
+      return done(err); // Pass the error to the callback
+    }
+    console.log(data); // Log the saved data
+    done(null, data); // Pass the saved data to the callback
+  });
   done(null /*, data*/);
 };
 
